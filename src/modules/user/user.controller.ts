@@ -62,7 +62,7 @@ export class UserController {
    * Create a new user
    *
    * @remarks This operation allows you to create a new user in the system.
-   * @param createUserDto - The user data to create
+   *
    * @throws {400} Bad request - Invalid user data provided.
    */
   @Post()

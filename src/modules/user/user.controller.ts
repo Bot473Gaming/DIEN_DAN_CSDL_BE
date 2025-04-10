@@ -13,18 +13,22 @@ import { User } from './entities/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { Response } from './common/response.type';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiTags } from '@nestjs/swagger';
 
 @ApiTags('user')
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
+  /**
+   * Get all users
+   *
+   * @remarks This operation retrieves a list of all users in the system.
+   *
+   * @throws {404} No users found in the system.
+   * @throws {500} Internal server error occurred.
+   */
   @Get()
-  @ApiOperation({ summary: 'Get all users' })
-  @ApiResponse({ status: 200, description: 'User list retrieved successfully' })
-  @ApiResponse({ status: 404, description: 'No users found' })
-  @ApiResponse({ status: 500, description: 'Internal server error' })
   async findAll(): Promise<Response<User[]>> {
     const users = await this.userService.findAll();
     return {
@@ -34,11 +38,15 @@ export class UserController {
     };
   }
 
+  /**
+   * Get user by ID
+   *
+   * @remarks This operation retrieves a specific user by their unique identifier.
+   *
+   * @throws {404} User with the specified ID was not found.
+   * @throws {400} Invalid ID format provided.
+   */
   @Get(':id')
-  @ApiOperation({ summary: 'Get user by ID' })
-  @ApiResponse({ status: 200, description: 'User found successfully' })
-  @ApiResponse({ status: 404, description: 'User not found' })
-  @ApiResponse({ status: 400, description: 'Invalid ID format' })
   async findOne(
     @Param('id', ParseIntPipe) id: number,
   ): Promise<Response<User>> {
@@ -50,10 +58,14 @@ export class UserController {
     };
   }
 
+  /**
+   * Create a new user
+   *
+   * @remarks This operation allows you to create a new user in the system.
+   * @param createUserDto - The user data to create
+   * @throws {400} Bad request - Invalid user data provided.
+   */
   @Post()
-  @ApiOperation({ summary: 'Create a new user' })
-  @ApiResponse({ status: 201, description: 'User successfully created' })
-  @ApiResponse({ status: 400, description: 'Bad request' })
   async create(@Body() createUserDto: CreateUserDto): Promise<Response<User>> {
     const user = await this.userService.create(createUserDto);
     return {
@@ -63,11 +75,15 @@ export class UserController {
     };
   }
 
+  /**
+   * Update user by ID
+   *
+   * @remarks This operation allows you to update an existing user's information.
+   *
+   * @throws {404} User with the specified ID was not found.
+   * @throws {400} Invalid ID format or update data provided.
+   */
   @Put(':id')
-  @ApiOperation({ summary: 'Update user by ID' })
-  @ApiResponse({ status: 200, description: 'User updated successfully' })
-  @ApiResponse({ status: 404, description: 'User not found' })
-  @ApiResponse({ status: 400, description: 'Invalid ID format' })
   async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateUserDto: UpdateUserDto,
@@ -80,11 +96,15 @@ export class UserController {
     };
   }
 
+  /**
+   * Delete user by ID
+   *
+   * @remarks This operation permanently removes a user from the system.
+   *
+   * @throws {404} User with the specified ID was not found.
+   * @throws {400} Invalid ID format provided.
+   */
   @Delete(':id')
-  @ApiOperation({ summary: 'Delete user by ID' })
-  @ApiResponse({ status: 200, description: 'User deleted successfully' })
-  @ApiResponse({ status: 404, description: 'User not found' })
-  @ApiResponse({ status: 400, description: 'Invalid ID format' })
   async remove(@Param('id', ParseIntPipe) id: number): Promise<Response<void>> {
     await this.userService.remove(id);
     return {

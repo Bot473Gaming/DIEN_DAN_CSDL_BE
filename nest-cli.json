@@ -5,7 +5,14 @@
   "compilerOptions": {
     "deleteOutDir": true,
     "plugins": [
-      "@nestjs/swagger"
+      {
+        "name": "@nestjs/swagger",
+        "options": {
+          "classValidatorShim": false,
+          "introspectComments": true,
+          "skipAutoHttpCode": true
+        }
+      }
     ]
   }
 }

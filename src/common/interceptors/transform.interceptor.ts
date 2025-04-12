@@ -30,6 +30,7 @@ export class TransformInterceptor<T>
         return {
           success: true,
           status: response.statusCode,
+          method: request.method,
           timestamp: new Date().toISOString(),
           path: request.url,
           message,

@@ -7,16 +7,19 @@ import {
   Param,
   Delete,
   ParseIntPipe,
+  UseInterceptors,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { User } from './entities/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { Response } from './common/response.type';
 import { ApiTags } from '@nestjs/swagger';
+import { TransformInterceptor } from '../../common/interceptors/transform.interceptor';
+import { LoggingInterceptor } from '../../common/interceptors/loging.interceptor';
 
 @ApiTags('user')
 @Controller('user')
+@UseInterceptors(TransformInterceptor, LoggingInterceptor)
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
@@ -29,13 +32,8 @@ export class UserController {
    * @throws {500} Internal server error occurred.
    */
   @Get()
-  async findAll(): Promise<Response<User[]>> {
-    const users = await this.userService.findAll();
-    return {
-      status: true,
-      message: 'Users retrieved successfully',
-      data: users,
-    };
+  async findAll(): Promise<User[]> {
+    return await this.userService.findAll();
   }
 
   /**
@@ -47,15 +45,8 @@ export class UserController {
    * @throws {400} Invalid ID format provided.
    */
   @Get(':id')
-  async findOne(
-    @Param('id', ParseIntPipe) id: number,
-  ): Promise<Response<User>> {
-    const user = await this.userService.findOne(id);
-    return {
-      status: true,
-      message: 'User found successfully',
-      data: user,
-    };
+  async findOne(@Param('id', ParseIntPipe) id: number): Promise<User> {
+    return await this.userService.findOne(id);
   }
 
   /**
@@ -66,13 +57,8 @@ export class UserController {
    * @throws {400} Bad request - Invalid user data provided.
    */
   @Post()
-  async create(@Body() createUserDto: CreateUserDto): Promise<Response<User>> {
-    const user = await this.userService.create(createUserDto);
-    return {
-      status: true,
-      message: 'User created successfully',
-      data: user,
-    };
+  async create(@Body() createUserDto: CreateUserDto): Promise<User> {
+    return await this.userService.create(createUserDto);
   }
 
   /**
@@ -87,13 +73,8 @@ export class UserController {
   async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateUserDto: UpdateUserDto,
-  ): Promise<Response<User>> {
-    const user = await this.userService.update(id, updateUserDto);
-    return {
-      status: true,
-      message: 'User updated successfully',
-      data: user,
-    };
+  ): Promise<User> {
+    return await this.userService.update(id, updateUserDto);
   }
 
   /**
@@ -105,11 +86,7 @@ export class UserController {
    * @throws {400} Invalid ID format provided.
    */
   @Delete(':id')
-  async remove(@Param('id', ParseIntPipe) id: number): Promise<Response<void>> {
+  async remove(@Param('id', ParseIntPipe) id: number): Promise<void> {
     await this.userService.remove(id);
-    return {
-      status: true,
-      message: 'User deleted successfully',
-    };
   }
 }

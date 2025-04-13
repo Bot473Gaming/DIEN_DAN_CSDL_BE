@@ -6,15 +6,10 @@ import { User } from './entities/user.entity';
 import { UserService } from './user.service';
 import { UserController } from './user.controller';
 
-// import { MulterModule } from '@nestjs/platform-express';
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([User]),
-    // MulterModule.register({
-    //   dest: './upload',
-    // }),
-  ],
+  imports: [TypeOrmModule.forFeature([User])],
   controllers: [UserController],
   providers: [UserService],
+  exports: [UserService],
 })
 export class UserModule {}

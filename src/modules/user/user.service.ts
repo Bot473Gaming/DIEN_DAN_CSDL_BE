@@ -7,10 +7,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
-// import { UpdateUserDto } from './dto/update-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 import * as bcrypt from 'bcrypt';
-import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class UserService {
@@ -22,11 +21,21 @@ export class UserService {
   async findAll(): Promise<User[]> {
     return this.userRepository.find();
   }
-  // Get one user by ID
-  async findOne(id: number): Promise<User> {
-    const user = await this.userRepository.findOne({
-      where: { id },
-    });
+  // Get one user by ID, username, or email
+  async findOne(identifier: number | string): Promise<User> {
+    let user: User;
+    // Check id
+    if (typeof identifier === 'number') {
+      user = (await this.userRepository.findOne({
+        where: { id: identifier },
+      }))!;
+    } else {
+      // Check username or email
+      user = (await this.userRepository.findOne({
+        where: [{ username: identifier }, { email: identifier }],
+      }))!;
+    }
+
     if (!user) {
       throw new NotFoundException('User not found');
     }

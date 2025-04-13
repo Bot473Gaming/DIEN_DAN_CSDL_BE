@@ -7,19 +7,15 @@ import {
   Param,
   Delete,
   ParseIntPipe,
-  UseInterceptors,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { User } from './entities/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ApiTags } from '@nestjs/swagger';
-import { TransformInterceptor } from '../../common/interceptors/transform.interceptor';
-import { LoggingInterceptor } from '../../common/interceptors/loging.interceptor';
 
 @ApiTags('user')
 @Controller('user')
-@UseInterceptors(TransformInterceptor, LoggingInterceptor)
 export class UserController {
   constructor(private readonly userService: UserService) {}
 

@@ -1,13 +1,12 @@
 import { Module } from '@nestjs/common';
-
-import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UserModule } from './modules/user/user.module';
 import { AuthModule } from './modules/auth/auth.module';
-
+import { ConfigModule } from '@nestjs/config';
+import { seedAdminUser } from './config/seed';
+import { DataSource } from 'typeorm';
 import databaseConfig from './config/database.config';
 
 @Module({
@@ -25,4 +24,10 @@ import databaseConfig from './config/database.config';
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule {
+  constructor(private dataSource: DataSource) {
+    seedAdminUser(dataSource).catch((err) => {
+      console.error('Error seeding admin user:', err);
+    });
+  }
+}

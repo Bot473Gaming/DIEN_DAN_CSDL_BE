@@ -7,13 +7,18 @@ import {
   Param,
   Delete,
   ParseIntPipe,
+  UseGuards,
+  Request,
 } from '@nestjs/common';
 import { UserService } from './user.service';
-import { User } from './entities/user.entity';
+import { User, UserRole } from './entities/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ApiTags } from '@nestjs/swagger';
-
+import { Roles } from '../../common/decorators/roles.decorator';
+import { RequestWithUser } from '../auth/common/request-with-user.interface';
+import { AuthGuard } from '../../common/guards/auth.guard';
+import { RolesGuard } from 'src/common/guards/roles.guard';
 @ApiTags('user')
 @Controller('user')
 export class UserController {
@@ -30,6 +35,12 @@ export class UserController {
   @Get()
   async findAll(): Promise<User[]> {
     return await this.userService.findAll();
+  }
+
+  @UseGuards(AuthGuard)
+  @Get('profile')
+  getProfile(@Request() req: RequestWithUser) {
+    return req.user;
   }
 
   /**
@@ -52,6 +63,8 @@ export class UserController {
    *
    * @throws {400} Bad request - Invalid user data provided.
    */
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN)
   @Post()
   async create(@Body() createUserDto: CreateUserDto): Promise<User> {
     return await this.userService.create(createUserDto);
@@ -65,6 +78,8 @@ export class UserController {
    * @throws {404} User with the specified ID was not found.
    * @throws {400} Invalid ID format or update data provided.
    */
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN)
   @Put(':id')
   async update(
     @Param('id', ParseIntPipe) id: number,
@@ -81,6 +96,8 @@ export class UserController {
    * @throws {404} User with the specified ID was not found.
    * @throws {400} Invalid ID format provided.
    */
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN)
   @Delete(':id')
   async remove(@Param('id', ParseIntPipe) id: number): Promise<void> {
     await this.userService.remove(id);

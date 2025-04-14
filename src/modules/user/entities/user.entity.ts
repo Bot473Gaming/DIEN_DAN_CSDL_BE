@@ -2,6 +2,11 @@ import { ApiHideProperty } from '@nestjs/swagger';
 import { IsEmail, IsNotEmpty, MinLength } from 'class-validator';
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
+export enum UserRole {
+  ADMIN = 'admin',
+  USER = 'user',
+}
+
 @Entity('users')
 export class User {
   @ApiHideProperty()
@@ -12,6 +17,7 @@ export class User {
   @IsNotEmpty()
   @IsEmail()
   email: string;
+
   @Column({ unique: true })
   @IsNotEmpty()
   @MinLength(2)
@@ -26,4 +32,11 @@ export class User {
   @IsNotEmpty()
   @MinLength(2)
   fullname: string;
+
+  @Column({
+    type: 'enum',
+    enum: UserRole,
+    default: UserRole.USER,
+  })
+  role: UserRole;
 }

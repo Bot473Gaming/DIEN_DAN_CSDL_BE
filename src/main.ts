@@ -18,7 +18,7 @@ async function bootstrap() {
   app.useGlobalFilters(new HttpExceptionFilter());
 
   app.enableCors({
-    origin: 'https://csdl-dien-dan-fe.onrender.com', // Chỉ cho phép từ domain này
+    origin: '*', // Chỉ cho phép từ domain này
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE', // Các phương thức HTTP được cho phép
     credentials: true, // Cho phép gửi cookie/token qua CORS
   });

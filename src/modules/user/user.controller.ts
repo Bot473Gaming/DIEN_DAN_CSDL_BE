@@ -2,104 +2,102 @@ import {
   Controller,
   Get,
   Post,
-  Put,
   Body,
   Param,
   Delete,
-  ParseIntPipe,
   UseGuards,
   Request,
+  Patch,
 } from '@nestjs/common';
 import { UserService } from './user.service';
-import { User, UserRole } from './entities/user.entity';
+import { User } from './entities/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { ApiTags } from '@nestjs/swagger';
-import { Roles } from '../../common/decorators/roles.decorator';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 import { NoAuth } from '../../common/decorators/no-auth.decorator';
 import { RequestWithUser } from '../auth/common/request-with-user.interface';
-import { RolesGuard } from 'src/common/guards/roles.guard';
 import { AuthGuard } from 'src/common/guards/auth.guard';
-@ApiTags('user')
-@Controller('user')
-@UseGuards(AuthGuard, RolesGuard)
+
+@ApiTags('users')
+@Controller('users')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  /**
-   * Get all users
-   *
-   * @remarks This operation retrieves a list of all users in the system.
-   *
-   * @throws {404} No users found in the system.
-   * @throws {500} Internal server error occurred.
-   */
-  @NoAuth()
   @Get()
+  @NoAuth()
+  @ApiOperation({ summary: 'Get all users' })
+  @ApiResponse({
+    status: 200,
+    description: 'Return list of users',
+    type: [User],
+  })
   async findAll(): Promise<User[]> {
     return await this.userService.findAll();
   }
 
-  @Get('profile')
-  getProfile(@Request() req: RequestWithUser) {
-    return req.user;
+  @Get('me')
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get current user profile' })
+  @ApiResponse({ status: 200, description: 'Return current user profile' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  async getProfile(@Request() req: RequestWithUser) {
+    return this.userService.findOne(req.user.sub);
   }
 
-  /**
-   * Get user by ID
-   *
-   * @remarks This operation retrieves a specific user by their unique identifier.
-   *
-   * @throws {404} User with the specified ID was not found.
-   * @throws {400} Invalid ID format provided.
-   */
-  @NoAuth()
   @Get(':id')
-  async findOne(@Param('id', ParseIntPipe) id: number): Promise<User> {
+  @NoAuth()
+  @ApiOperation({ summary: 'Get user by ID' })
+  @ApiResponse({
+    status: 200,
+    description: 'Return user details',
+    type: User,
+  })
+  @ApiResponse({ status: 404, description: 'User not found' })
+  async findOne(@Param('id') id: string): Promise<User> {
     return await this.userService.findOne(id);
   }
 
-  /**
-   * Create a new user
-   *
-   * @remarks This operation allows you to create a new user in the system.
-   *
-   * @throws {400} Bad request - Invalid user data provided.
-   */
-  @Roles(UserRole.ADMIN)
   @Post()
-  async create(@Body() createUserDto: CreateUserDto): Promise<User> {
-    return await this.userService.create(createUserDto);
+  @ApiOperation({ summary: 'Create a new user' })
+  @ApiResponse({ status: 201, description: 'User successfully created' })
+  @ApiResponse({ status: 400, description: 'Invalid input' })
+  async create(@Body() createUserDto: CreateUserDto) {
+    return this.userService.create(createUserDto);
   }
 
-  /**
-   * Update user by ID
-   *
-   * @remarks This operation allows you to update an existing user's information.
-   *
-   * @throws {404} User with the specified ID was not found.
-   * @throws {400} Invalid ID format or update data provided.
-   */
-  @Roles(UserRole.ADMIN)
-  @Put(':id')
-  async update(
-    @Param('id', ParseIntPipe) id: number,
+  @Patch('me')
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Update current user profile' })
+  @ApiResponse({
+    status: 200,
+    description: 'User profile successfully updated',
+  })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 400, description: 'Invalid input' })
+  async updateProfile(
+    @Request() req: RequestWithUser,
     @Body() updateUserDto: UpdateUserDto,
-  ): Promise<User> {
-    return await this.userService.update(id, updateUserDto);
+  ) {
+    return this.userService.update(req.user.sub, updateUserDto);
   }
 
-  /**
-   * Delete user by ID
-   *
-   * @remarks This operation permanently removes a user from the system.
-   *
-   * @throws {404} User with the specified ID was not found.
-   * @throws {400} Invalid ID format provided.
-   */
-  @Roles(UserRole.ADMIN)
-  @Delete(':id')
-  async remove(@Param('id', ParseIntPipe) id: number): Promise<void> {
-    await this.userService.remove(id);
+  @Delete('me')
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Delete current user account' })
+  @ApiResponse({
+    status: 200,
+    description: 'User account successfully deleted',
+  })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  async deleteProfile(@Request() req: RequestWithUser) {
+    return this.userService.remove(req.user.sub);
   }
 }

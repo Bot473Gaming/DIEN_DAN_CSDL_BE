@@ -1,5 +1,12 @@
-import { ApiHideProperty } from '@nestjs/swagger';
-import { IsEmail, IsNotEmpty, MinLength } from 'class-validator';
+import { ApiHideProperty, ApiProperty } from '@nestjs/swagger';
+import {
+  IsEmail,
+  IsEnum,
+  IsNotEmpty,
+  IsString,
+  MinLength,
+} from 'class-validator';
+import { BaseEntity } from 'src/common/interfaces/base-entity.interface';
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 export enum UserRole {
@@ -7,28 +14,36 @@ export enum UserRole {
   USER = 'user',
 }
 
-@Entity('users')
-export class User {
+@Entity('user')
+export class User implements BaseEntity {
   @ApiHideProperty()
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn('uuid')
+  @ApiProperty({ description: 'User ID' })
+  _id: string;
 
   @Column({ unique: true })
-  @IsNotEmpty()
+  @ApiProperty({ description: 'User email' })
   @IsEmail()
+  @IsNotEmpty()
   email: string;
 
   @Column({ unique: true })
+  @ApiProperty({ description: 'Username' })
+  @IsString()
   @IsNotEmpty()
   @MinLength(2)
   username: string;
 
   @Column()
+  @ApiProperty({ description: 'User password' })
+  @IsString()
   @IsNotEmpty()
   @MinLength(6)
   password: string;
 
   @Column()
+  @ApiProperty({ description: 'User full name' })
+  @IsString()
   @IsNotEmpty()
   @MinLength(2)
   fullname: string;
@@ -38,5 +53,7 @@ export class User {
     enum: UserRole,
     default: UserRole.USER,
   })
+  @ApiProperty({ description: 'User role', enum: UserRole })
+  @IsEnum(UserRole)
   role: UserRole;
 }

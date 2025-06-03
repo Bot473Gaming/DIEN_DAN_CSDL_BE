@@ -17,6 +17,11 @@ async function bootstrap() {
   // Apply the exception filter globally
   app.useGlobalFilters(new HttpExceptionFilter());
 
+  app.enableCors({
+    origin: 'http://127.0.0.1:5500', // Chỉ cho phép từ domain này
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE', // Các phương thức HTTP được cho phép
+    credentials: true, // Cho phép gửi cookie/token qua CORS
+  });
   // Apply the validation pipe globally
   app.useGlobalPipes(new ValidationPipe({}));
 

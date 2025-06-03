@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { User } from './entities/user.entity';
+import { User, UserRole } from './entities/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 
@@ -22,24 +22,28 @@ export class UserService {
     return this.userRepository.find();
   }
   // Get one user by ID, username, or email
-  async findOne(identifier: number | string): Promise<User> {
-    let user: User;
-    // Check id
-    if (typeof identifier === 'number') {
-      user = (await this.userRepository.findOne({
-        where: { id: identifier },
-      }))!;
-    } else {
-      // Check username or email
-      user = (await this.userRepository.findOne({
-        where: [{ username: identifier }, { email: identifier }],
-      }))!;
-    }
+  async findOne(identifier: string): Promise<User> {
+    try {
+      const user = await this.userRepository.findOne({
+        where: { _id: identifier },
+        select: {
+          _id: true,
+          email: true,
+          username: true,
+          password: true,
+          fullname: true,
+          role: true,
+        },
+      });
 
-    if (!user) {
-      throw new NotFoundException('User not found');
+      if (!user) {
+        throw new NotFoundException('User not found');
+      }
+      return user;
+    } catch (error) {
+      console.error('Error finding user:', error);
+      throw error;
     }
-    return user;
   }
   // Create a new user
   async create(createUserDto: CreateUserDto): Promise<User> {
@@ -64,12 +68,13 @@ export class UserService {
     const user = this.userRepository.create({
       ...createUserDto,
       password: hashedPassword,
+      role: UserRole.USER,
     });
 
     return this.userRepository.save(user);
   }
   // Update a user by ID
-  async update(id: number, updateUserDto: UpdateUserDto): Promise<User> {
+  async update(id: string, updateUserDto: UpdateUserDto): Promise<User> {
     const user = await this.findOne(id);
 
     // Only update password and fullname
@@ -82,8 +87,12 @@ export class UserService {
 
     return this.userRepository.save(user);
   }
-  async remove(id: number): Promise<void> {
+  async remove(id: string): Promise<void> {
     const user = await this.findOne(id);
     await this.userRepository.remove(user);
+  }
+
+  async findByUsername(username: string): Promise<User | null> {
+    return this.userRepository.findOne({ where: { username } });
   }
 }

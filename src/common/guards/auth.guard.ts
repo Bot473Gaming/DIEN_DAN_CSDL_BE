@@ -13,7 +13,7 @@ import { NO_AUTH_KEY } from '../decorators/no-auth.decorator';
 
 interface RequestWithUser extends Request {
   user: {
-    sub: number;
+    sub: string;
     username: string;
     role: UserRole;
     iat: number;

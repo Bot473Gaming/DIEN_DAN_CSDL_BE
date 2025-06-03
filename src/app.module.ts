@@ -1,9 +1,15 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
+
 import { UserModule } from './modules/user/user.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { CategoryModule } from './modules/category/category.module';
+import { PostModule } from './modules/post/post.module';
+import { CommentModule } from './modules/comment/comment.module';
+import { VoteModule } from './modules/vote/vote.module';
+import { TagModule } from './modules/tag/tag.module';
+import { NotificationModule } from './modules/notification/notification.module';
+import { ReportModule } from './modules/report/report.module';
 import { ConfigModule } from '@nestjs/config';
 import { seedAdminUser } from './config/seed';
 import { DataSource } from 'typeorm';
@@ -20,9 +26,16 @@ import databaseConfig from './config/database.config';
     }),
     UserModule,
     AuthModule,
+    CategoryModule,
+    PostModule,
+    CommentModule,
+    VoteModule,
+    TagModule,
+    NotificationModule,
+    ReportModule,
   ],
-  controllers: [AppController],
-  providers: [AppService],
+  controllers: [],
+  providers: [],
 })
 export class AppModule {
   constructor(private dataSource: DataSource) {

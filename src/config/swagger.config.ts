@@ -1,5 +1,6 @@
 import { INestApplication } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { writeFileSync } from 'fs';
 
 export const setupSwagger = (app: INestApplication) => {
   const config = new DocumentBuilder()
@@ -10,4 +11,6 @@ export const setupSwagger = (app: INestApplication) => {
 
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
+
+  writeFileSync('./swagger.json', JSON.stringify(document, null, 2));
 };

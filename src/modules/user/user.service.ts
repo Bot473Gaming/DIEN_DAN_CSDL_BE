@@ -10,12 +10,16 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 
 import * as bcrypt from 'bcrypt';
+import { UpdateUserProfileDto } from './dto/update-user-profile.dto';
+import { UserProfile } from './entities/profile.entity';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User)
     private userRepository: Repository<User>,
+    @InjectRepository(UserProfile)
+    private userProfileRepository: Repository<UserProfile>,
   ) {}
 
   async findAll(): Promise<User[]> {
@@ -94,5 +98,21 @@ export class UserService {
 
   async findByUsername(username: string): Promise<User | null> {
     return this.userRepository.findOne({ where: { username } });
+  }
+
+  // getUserProfile
+  async getUserProfile(userId: string): Promise<UserProfile | null> {
+    return this.userProfileRepository.findOne({ where: { userId } });
+  }
+
+  // updateUserProfile
+  async updateUserProfile(
+    userId: string,
+    updateProfileDto: UpdateUserProfileDto,
+  ): Promise<User> {
+    const { user, profile } = updateProfileDto;
+    await this.update(userId, user as UpdateUserDto);
+    await this.userProfileRepository.save({ ...profile, userId });
+    return this.findOne(userId);
   }
 }

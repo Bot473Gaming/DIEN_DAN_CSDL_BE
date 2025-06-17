@@ -8,9 +8,10 @@ import { UserController } from './user.controller';
 // import { AuthGuard } from '../../common/guards/auth.guard';
 // import { RolesGuard } from '../../common/guards/roles.guard';
 import { JwtService } from '@nestjs/jwt';
+import { UserProfile } from './entities/profile.entity';
 // import { AuthGuard } from '../../common/guards/auth.guard';
 @Module({
-  imports: [TypeOrmModule.forFeature([User])],
+  imports: [TypeOrmModule.forFeature([User, UserProfile])],
   controllers: [UserController],
   providers: [JwtService, UserService],
   exports: [UserService],

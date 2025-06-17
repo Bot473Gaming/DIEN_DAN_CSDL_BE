@@ -8,6 +8,7 @@ import {
   UseGuards,
   Request,
   Patch,
+  Put,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { User } from './entities/user.entity';
@@ -22,6 +23,7 @@ import {
 import { NoAuth } from '../../common/decorators/no-auth.decorator';
 import { RequestWithUser } from '../auth/common/request-with-user.interface';
 import { AuthGuard } from 'src/common/guards/auth.guard';
+import { UpdateUserProfileDto } from './dto/update-user-profile.dto';
 
 @ApiTags('users')
 @Controller('users')
@@ -62,6 +64,14 @@ export class UserController {
   async findOne(@Param('id') id: string): Promise<User> {
     return await this.userService.findOne(id);
   }
+  // getUserProfile
+  @Get(':id/profile')
+  @ApiOperation({ summary: 'Get user profile by ID' })
+  @ApiResponse({ status: 200, description: 'Return user profile' })
+  @ApiResponse({ status: 404, description: 'User not found' })
+  async getUserProfile(@Param('id') id: string) {
+    return this.userService.getUserProfile(id);
+  }
 
   @Post()
   @ApiOperation({ summary: 'Create a new user' })
@@ -99,5 +109,15 @@ export class UserController {
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   async deleteProfile(@Request() req: RequestWithUser) {
     return this.userService.remove(req.user.sub);
+  }
+  @Put('profile')
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Update user profile' })
+  async updateUserProfile(
+    @Request() req: RequestWithUser,
+    @Body() updateProfileDto: UpdateUserProfileDto,
+  ) {
+    return this.userService.updateUserProfile(req.user.sub, updateProfileDto);
   }
 }

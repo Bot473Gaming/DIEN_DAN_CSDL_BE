@@ -220,6 +220,80 @@
         ]
       }
     },
+    "/users/{id}/profile": {
+      "get": {
+        "operationId": "UserController_getUserProfile",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Return user profile"
+          },
+          "404": {
+            "description": "User not found"
+          },
+          "default": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Get user profile by ID",
+        "tags": [
+          "users"
+        ]
+      }
+    },
+    "/users/profile": {
+      "put": {
+        "operationId": "UserController_updateUserProfile",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateUserProfileDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Update user profile",
+        "tags": [
+          "users"
+        ]
+      }
+    },
     "/auth/login": {
       "post": {
         "operationId": "AuthController_login",
@@ -1933,6 +2007,17 @@
           "fullname": {
             "type": "string",
             "description": "User full name"
+          }
+        }
+      },
+      "UpdateUserProfileDto": {
+        "type": "object",
+        "properties": {
+          "user": {
+            "type": "object"
+          },
+          "profile": {
+            "type": "object"
           }
         }
       },

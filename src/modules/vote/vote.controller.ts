@@ -54,10 +54,10 @@ export class VoteController {
     description: 'Number of votes to take',
   })
   @ApiQuery({
-    name: 'postId',
+    name: 'targetId',
     required: false,
     type: String,
-    description: 'Filter by post ID',
+    description: 'Filter by target ID',
   })
   @ApiQuery({
     name: 'userId',
@@ -66,10 +66,10 @@ export class VoteController {
     description: 'Filter by user ID',
   })
   @ApiQuery({
-    name: 'type',
+    name: 'targetType',
     required: false,
     enum: VoteValue,
-    description: 'Filter by vote type (upvote/downvote)',
+    description: 'Filter by comment, post',
   })
   @ApiResponse({
     status: 200,

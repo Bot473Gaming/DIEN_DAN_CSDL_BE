@@ -1,26 +1,23 @@
-# Sử dụng một image Node.js làm base
+# Sử dụng image Node.js chính thức
 FROM node:lts
 
-# Đặt thư mục làm việc trong container
+# Đặt thư mục làm việc
 WORKDIR /app
 
-# Copy package.json và package-lock.json (hoặc yarn.lock)
-# để cài đặt dependencies
+# Copy file package.json và package-lock.json trước để cache npm install
 COPY package*.json ./
 
 # Cài đặt dependencies
 RUN npm install
 
-# Copy toàn bộ mã nguồn ứng dụng
+# Copy toàn bộ mã nguồn vào container
 COPY . .
 
-# Build ứng dụng NestJS (nếu sử dụng TypeScript)
+# Build NestJS (nếu dùng TypeScript)
 RUN npm run build
 
-# Mở port mà ứng dụng NestJS lắng nghe
-# Sử dụng biến môi trường PORT từ .env (qua docker-compose)
-EXPOSE ${PORT:-3000}
+# Mở port (mặc định 3000, có thể override bằng biến môi trường)
+EXPOSE 3000
 
-# Lệnh để chạy ứng dụng khi container khởi động
-# Thay đổi nếu điểm vào ứng dụng của bạn khác
-CMD [ "node", "dist/main" ]
+# Lệnh chạy ứng dụng
+CMD ["node", "dist/main"]

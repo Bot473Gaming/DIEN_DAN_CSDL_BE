@@ -8,14 +8,14 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Vote } from './entities/vote.entity';
 import { CreateVoteDto } from './dto/create-vote.dto';
-import { VoteTargetType, VoteValue } from '../../common/enums/vote.enum';
+import { VoteTargetType } from '../../common/enums/vote.enum';
 
 interface FindAllOptions {
   skip?: number;
   take?: number;
-  postId?: string;
+  targetId?: string;
   userId?: string;
-  type?: VoteValue;
+  targetType?: VoteTargetType;
 }
 
 @Injectable()
@@ -28,7 +28,7 @@ export class VoteService {
   async findAll(
     options: FindAllOptions,
   ): Promise<{ votes: Vote[]; total: number }> {
-    const { skip = 0, take = 10, postId, userId, type } = options;
+    const { skip = 0, take = 10, targetId, userId, targetType } = options;
 
     const queryBuilder = this.voteRepository
       .createQueryBuilder('vote')
@@ -36,22 +36,18 @@ export class VoteService {
       .leftJoinAndSelect('vote.post', 'post')
       .leftJoinAndSelect('vote.comment', 'comment');
 
-    if (postId) {
+    if (targetId) {
       queryBuilder.andWhere(
-        'vote.targetId = :postId AND vote.targetType = :postType',
+        'vote.targetId = :targetId AND vote.targetType = :targetType',
         {
-          postId,
-          postType: VoteTargetType.POST,
+          targetId,
+          targetType: targetType || VoteTargetType.POST,
         },
       );
     }
 
     if (userId) {
       queryBuilder.andWhere('vote.userId = :userId', { userId });
-    }
-
-    if (type) {
-      queryBuilder.andWhere('vote.voteValue = :type', { type });
     }
 
     const [votes, total] = await queryBuilder

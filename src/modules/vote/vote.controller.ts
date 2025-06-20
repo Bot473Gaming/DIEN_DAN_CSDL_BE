@@ -23,14 +23,14 @@ import {
 import { AuthGuard } from '../../common/guards/auth.guard';
 import { RequestWithUser } from '../auth/common/request-with-user.interface';
 import { Vote } from './entities/vote.entity';
-import { VoteValue } from '../../common/enums/vote.enum';
+import { VoteTargetType, VoteValue } from '../../common/enums/vote.enum';
 
 interface FindAllOptions {
   skip?: number;
   take?: number;
-  postId?: string;
+  targetId?: string;
   userId?: string;
-  type?: VoteValue;
+  targetType?: VoteTargetType;
 }
 
 @ApiTags('votes')
@@ -91,16 +91,16 @@ export class VoteController {
   async findAll(
     @Query('skip', new DefaultValuePipe(0), ParseIntPipe) skip: number,
     @Query('take', new DefaultValuePipe(10), ParseIntPipe) take: number,
-    @Query('postId') postId?: string,
+    @Query('targetId') targetId?: string,
     @Query('userId') userId?: string,
-    @Query('type') type?: VoteValue,
+    @Query('targetType') targetType?: VoteTargetType,
   ): Promise<{ votes: Vote[]; total: number }> {
     const options: FindAllOptions = {
       skip,
       take,
-      postId,
+      targetId,
       userId,
-      type,
+      targetType,
     };
     return await this.voteService.findAll(options);
   }

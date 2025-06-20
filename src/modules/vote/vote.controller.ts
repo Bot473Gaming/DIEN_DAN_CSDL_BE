@@ -23,7 +23,7 @@ import {
 import { AuthGuard } from '../../common/guards/auth.guard';
 import { RequestWithUser } from '../auth/common/request-with-user.interface';
 import { Vote } from './entities/vote.entity';
-import { VoteTargetType, VoteValue } from '../../common/enums/vote.enum';
+import { VoteTargetType } from '../../common/enums/vote.enum';
 
 interface FindAllOptions {
   skip?: number;
@@ -68,7 +68,7 @@ export class VoteController {
   @ApiQuery({
     name: 'targetType',
     required: false,
-    enum: VoteValue,
+    enum: VoteTargetType,
     description: 'Filter by comment, post',
   })
   @ApiResponse({

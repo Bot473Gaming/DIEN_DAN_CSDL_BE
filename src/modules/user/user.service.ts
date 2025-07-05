@@ -20,8 +20,18 @@ export class UserService {
     private userRepository: Repository<User>,
     @InjectRepository(UserProfile)
     private userProfileRepository: Repository<UserProfile>,
-  ) {}
+  ) {
+    this.initProfile();
+  }
 
+  async initProfile(): Promise<void> {
+    const users = await this.userRepository.find({ select: { _id: true } });
+    for (const user of users) {
+      const profile = new UserProfile();
+      profile.userId = user._id;
+      await this.userProfileRepository.save(profile);
+    }
+  }
   async findAll(): Promise<User[]> {
     return this.userRepository.find();
   }

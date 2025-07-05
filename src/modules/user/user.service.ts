@@ -21,7 +21,7 @@ export class UserService {
     @InjectRepository(UserProfile)
     private userProfileRepository: Repository<UserProfile>,
   ) {
-    this.initProfile();
+    void this.initProfile();
   }
 
   async initProfile(): Promise<void> {

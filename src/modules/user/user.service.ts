@@ -26,10 +26,19 @@ export class UserService {
 
   async initProfile(): Promise<void> {
     const users = await this.userRepository.find({ select: { _id: true } });
+    const existingProfiles = await this.userProfileRepository.find({
+      select: { userId: true },
+    });
+    // console.log('Initializing user profiles for existing users:', users);
     for (const user of users) {
-      const profile = new UserProfile();
-      profile.userId = user._id;
-      await this.userProfileRepository.save(profile);
+      if (existingProfiles.some((profile) => profile.userId === user._id)) {
+        continue;
+      }
+      await this.userProfileRepository.save({
+        userId: user._id,
+        cover: '',
+        bio: '',
+      });
     }
   }
   async findAll(): Promise<User[]> {
@@ -83,6 +92,11 @@ export class UserService {
       ...createUserDto,
       password: hashedPassword,
       role: UserRole.USER,
+    });
+    await this.userProfileRepository.save({
+      userId: user._id,
+      cover: '',
+      bio: '',
     });
 
     return this.userRepository.save(user);

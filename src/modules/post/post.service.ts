@@ -171,14 +171,17 @@ export class PostService {
   ): Promise<void> {
     const post = await this.findOne(id);
 
-    // Check if user is authorized to delete
+    if (!post) {
+      throw new NotFoundException('Post not found');
+    }
+
     if (post.userId !== userId && !isAdmin) {
       throw new ForbiddenException(
         'You are not authorized to delete this post',
       );
     }
 
-    await this.postRepository.remove(post);
+    await this.postRepository.delete(id);
   }
 
   async toggleLock(

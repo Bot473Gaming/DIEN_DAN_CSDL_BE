@@ -87,7 +87,6 @@ export class CommentService {
     createCommentDto: CreateCommentDto,
     userId: string,
   ): Promise<Comment> {
-    // Verify post exists and is not locked
     const post = await this.postRepository.findOne({
       where: { _id: createCommentDto.postId },
     });
@@ -95,12 +94,10 @@ export class CommentService {
     if (!post) {
       throw new BadRequestException('Post not found');
     }
-
     if (post.isLocked) {
       throw new ForbiddenException('Cannot comment on a locked post');
     }
 
-    // Verify parent comment exists if provided
     if (createCommentDto.parentCommentId) {
       const parentComment = await this.commentRepository.findOne({
         where: { _id: createCommentDto.parentCommentId },
@@ -109,19 +106,16 @@ export class CommentService {
       if (!parentComment) {
         throw new BadRequestException('Parent comment not found');
       }
-
       if (parentComment.postId !== createCommentDto.postId) {
         throw new BadRequestException(
           'Parent comment does not belong to the same post',
         );
       }
     }
-
     const comment = this.commentRepository.create({
       ...createCommentDto,
       userId,
     });
-
     return this.commentRepository.save(comment);
   }
 
@@ -132,32 +126,24 @@ export class CommentService {
     isAdmin: boolean = false,
   ): Promise<Comment> {
     const comment = await this.findOne(id);
-
-    // Check if user is authorized to update
     if (comment.userId !== userId && !isAdmin) {
       throw new ForbiddenException(
         'You are not authorized to update this comment',
       );
     }
-
-    // Check if post is locked
     const post = await this.postRepository.findOne({
       where: { _id: comment.postId },
     });
-
     if (!post) {
       throw new NotFoundException('Post not found');
     }
-
     if (post.isLocked && !isAdmin) {
       throw new ForbiddenException('Cannot update comment on a locked post');
     }
-
     // Update content
     if (updateCommentDto.content) {
       comment.content = updateCommentDto.content;
     }
-
     return this.commentRepository.save(comment);
   }
 
@@ -167,15 +153,11 @@ export class CommentService {
     isAdmin: boolean = false,
   ): Promise<void> {
     const comment = await this.findOne(id);
-
-    // Check if user is authorized to delete
     if (comment.userId !== userId && !isAdmin) {
       throw new ForbiddenException(
         'You are not authorized to delete this comment',
       );
     }
-
-    // Check if post is locked
     const post = await this.postRepository.findOne({
       where: { _id: comment.postId },
     });
@@ -183,18 +165,14 @@ export class CommentService {
     if (!post) {
       throw new NotFoundException('Post not found');
     }
-
     if (post.isLocked && !isAdmin) {
       throw new ForbiddenException('Cannot delete comment on a locked post');
     }
-
-    // If comment has replies, only admins can delete it
     if (comment.replies?.length > 0 && !isAdmin) {
       throw new ForbiddenException(
         'Cannot delete comment with replies. Please contact an admin.',
       );
     }
-
     await this.commentRepository.remove(comment);
   }
 }

@@ -11,7 +11,6 @@ import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { Tag } from '../tag/entities/tag.entity';
 import { Category } from '../category/entities/category.entity';
-import { User } from '../user/entities/user.entity';
 
 @Injectable()
 export class PostService {
@@ -181,7 +180,7 @@ export class PostService {
       );
     }
 
-    await this.postRepository.delete(id);
+    await this.postRepository.delete({ _id: id });
   }
 
   async toggleLock(
